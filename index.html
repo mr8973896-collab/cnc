@@ -3,72 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة المنشورات - النسخة المستقرة</title>
+    <title>منصة المنشورات التفاعلية</title>
     <style>
-        :root { --primary: #22c55e; --primary-dark: #16a34a; --bg: #f8fafc; --text: #1e293b; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
+        :root { --primary: #22c55e; --bg: #f8fafc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); padding: 20px; display: flex; flex-direction: column; align-items: center; }
         
-        /* شاشة الدخول */
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; border-top: 5px solid var(--primary); }
-        .login-card h2 { color: var(--primary-dark); margin-bottom: 10px; }
-        .login-card input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 16px; text-align: center; }
-        .login-card button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px; }
-
-        /* التطبيق */
-        .app-container { width: 100%; max-width: 600px; display: none; }
-        .header { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; margin-bottom: 20px; border-bottom: 4px solid var(--primary); }
-        #btn-open-modal { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; font-size: 18px; transition: 0.3s; }
+        .header-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 500px; text-align: center; margin-bottom: 25px; border-bottom: 5px solid var(--primary); }
+        
+        #btn-open-modal { width: 100%; padding: 16px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; font-size: 18px; transition: 0.3s; }
         #btn-open-modal:disabled { background: #cbd5e1; cursor: not-allowed; }
 
-        /* المنشورات */
-        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .post-card p { font-size: 17px; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; }
-        .post-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 10px; }
-        .user-info { font-size: 13px; font-weight: bold; color: var(--primary-dark); }
-        .post-date { font-size: 11px; color: #94a3b8; }
+        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; width: 100%; max-width: 500px; border: 1px solid #e2e8f0; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+        .post-card p { font-size: 17px; line-height: 1.6; color: #1e293b; margin-bottom: 10px; }
+        .post-footer { font-size: 13px; color: var(--primary); font-weight: bold; border-top: 1px solid #f1f5f9; padding-top: 10px; display: flex; justify-content: space-between; }
 
-        /* نافذة النشر */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 3000; padding: 20px; }
+        #login-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; }
+        input { padding: 12px; margin: 8px; border: 2px solid #e2e8f0; border-radius: 10px; width: 280px; text-align: center; font-size: 16px; }
+
+        /* نافذة النشر بديلة الـ Prompt */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 3000; }
         .modal.active { display: flex; }
-        .modal-content { background: white; width: 100%; max-width: 500px; padding: 25px; border-radius: 20px; }
-        textarea { width: 100%; height: 120px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 15px; resize: none; font-size: 16px; outline: none; }
-        .modal-btns { display: flex; gap: 10px; }
-        .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        #btn-publish { background: var(--primary); color: white; }
-        #btn-publish:disabled { background: #94a3b8; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; }
+        textarea { width: 100%; height: 120px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 15px; resize: none; font-size: 16px; outline: none; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <div class="login-card">
-            <h2>مرحباً بك ✍️</h2>
-            <input type="text" id="user-name" placeholder="ادخل اسمك">
-            <input type="number" id="user-age" placeholder="ادخل سنك">
-            <button id="btn-start">دخول المنصة</button>
-        </div>
+        <h2 style="margin-bottom:20px; color:#16a34a">مرحباً بك ✍️</h2>
+        <input type="text" id="u-name" placeholder="ادخل اسمك">
+        <input type="number" id="u-age" placeholder="ادخل سنك">
+        <button id="btn-start" style="padding:12px 50px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer">دخول</button>
     </div>
 
-    <div class="app-container" id="main-app">
-        <div class="header">
-            <div id="display-welcome" style="margin-bottom:10px; font-size:14px; color:#64748b"></div>
-            <h1>ساحة المنشورات</h1>
-            <button id="btn-open-modal" disabled>جاري الاتصال بالخادم...</button>
-        </div>
-        <div id="posts-list"></div>
+    <div class="header-card">
+        <p id="welcome-msg" style="margin-bottom:10px; color:#64748b; font-weight:500"></p>
+        <h1 style="margin-bottom:20px">ساحة المنشورات</h1>
+        <button id="btn-open-modal" disabled>جاري تهيئة الاتصال الآمن...</button>
     </div>
+
+    <div id="posts-list" style="width:100%; max-width:500px"></div>
 
     <div class="modal" id="post-modal">
         <div class="modal-content">
-            <h3 style="margin-bottom:15px">ماذا يدور في ذهنك؟</h3>
-            <textarea id="post-content" placeholder="اكتب هنا..."></textarea>
-            <div class="modal-btns">
-                <button onclick="document.getElementById('post-modal').classList.remove('active')" style="background:#f1f5f9">إلغاء</button>
-                <button id="btn-publish">نشر الآن 🚀</button>
-            </div>
+            <h3 style="margin-bottom:15px">اكتب منشورك</h3>
+            <textarea id="post-text" placeholder="ماذا يدور في ذهنك؟"></textarea>
+            <button id="btn-publish" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer">نشر الآن 🚀</button>
+            <button onclick="document.getElementById('post-modal').classList.remove('active')" style="width:100%; margin-top:10px; background:none; border:none; color:#94a3b8; cursor:pointer">إلغاء</button>
         </div>
     </div>
 
@@ -92,34 +75,48 @@
         const auth = getAuth(app);
         const postsRef = ref(db, 'posts');
 
-        let userProfile = JSON.parse(localStorage.getItem('myProfile')) || null;
+        let userData = JSON.parse(localStorage.getItem('user_v2'));
 
-        if (userProfile) { startApp(); }
-
-        document.getElementById('btn-start').onclick = () => {
-            const name = document.getElementById('user-name').value.trim();
-            const age = document.getElementById('user-age').value.trim();
-            if (name && age) {
-                userProfile = { name, age };
-                localStorage.setItem('myProfile', JSON.stringify(userProfile));
-                startApp();
-            } else { alert("يرجى إدخال البيانات!"); }
-        };
-
-        function startApp() {
+        if(userData) {
             document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            document.getElementById('display-welcome').textContent = `أهلاً ${userProfile.name}`;
-            signInAnonymously(auth).catch(err => console.error("Auth Error:", err));
+            document.getElementById('welcome-msg').textContent = `أهلاً بك يا ${userData.name}`;
+            signInAnonymously(auth);
         }
 
-        // مراقبة حالة التسجيل لفتح الأزرار
+        document.getElementById('btn-start').onclick = () => {
+            const name = document.getElementById('u-name').value.trim();
+            const age = document.getElementById('u-age').value.trim();
+            if(name && age) {
+                userData = { name, age };
+                localStorage.setItem('user_v2', JSON.stringify(userData));
+                location.reload();
+            }
+        };
+
+        // تفعيل الزر فقط عند نجاح الاتصال
         onAuthStateChanged(auth, (user) => {
-            const btnOpen = document.getElementById('btn-open-modal');
             if (user) {
-                btnOpen.disabled = false;
-                btnOpen.textContent = "✍️ اكتب منشوراً جديداً";
-                console.log("✅ متصل بنجاح");
+                const btn = document.getElementById('btn-open-modal');
+                btn.disabled = false;
+                btn.textContent = "✍️ اكتب منشوراً جديداً";
+            }
+        });
+
+        // عرض المنشورات وتجنب الـ undefined
+        onValue(postsRef, (snap) => {
+            const list = document.getElementById('posts-list');
+            list.innerHTML = "";
+            if(snap.exists()){
+                const posts = [];
+                snap.forEach(c => { posts.push(c.val()); });
+                posts.reverse().forEach(p => {
+                    if(p.text && p.author) {
+                        const card = document.createElement('div');
+                        card.className = 'post-card';
+                        card.innerHTML = `<p>${p.text}</p><div class="post-footer"><span>👤 ${p.author} (${p.age} سنة)</span></div>`;
+                        list.appendChild(card);
+                    }
+                });
             }
         });
 
@@ -127,52 +124,30 @@
             document.getElementById('post-modal').classList.add('active');
         };
 
-        const btnPublish = document.getElementById('btn-publish');
-        btnPublish.onclick = async () => {
-            const text = document.getElementById('post-content').value.trim();
-            if (!text || !auth.currentUser) return;
+        document.getElementById('btn-publish').onclick = async () => {
+            const text = document.getElementById('post-text').value.trim();
+            if(!text) return;
 
-            btnPublish.disabled = true;
-            btnPublish.textContent = "جاري الحفظ...";
+            const btn = document.getElementById('btn-publish');
+            btn.disabled = true;
+            btn.textContent = "جاري النشر...";
 
             try {
                 await push(postsRef, {
                     text: text,
-                    author: userProfile.name,
-                    age: userProfile.age,
-                    timestamp: serverTimestamp(),
-                    displayDate: new Date().toLocaleString('ar-EG')
+                    author: userData.name,
+                    age: userData.age,
+                    createdAt: serverTimestamp()
                 });
-                document.getElementById('post-content').value = "";
+                document.getElementById('post-text').value = "";
                 document.getElementById('post-modal').classList.remove('active');
-            } catch (err) {
-                alert("فشل النشر! تأكد من تفعيل Anonymous Auth في Firebase");
-                console.error(err);
+            } catch(e) {
+                alert("حدث خطأ! تأكد من تفعيل Anonymous Auth في Firebase.");
             } finally {
-                btnPublish.disabled = false;
-                btnPublish.textContent = "نشر الآن 🚀";
+                btn.disabled = false;
+                btn.textContent = "نشر الآن 🚀";
             }
         };
-
-        onValue(postsRef, (snapshot) => {
-            const list = document.getElementById('posts-list');
-            list.innerHTML = "";
-            if (snapshot.exists()) {
-                const posts = [];
-                snapshot.forEach(child => { posts.push(child.val()); });
-                posts.reverse().forEach(post => {
-                    const card = document.createElement('div');
-                    card.className = 'post-card';
-                    card.innerHTML = `
-                        <p>${post.text}</p>
-                        <div class="post-footer">
-                            <span class="user-info">👤 ${post.author} (${post.age} سنة)</span>
-                            <span class="post-date">🕒 ${post.displayDate || ''}</span>
-                        </div>`;
-                    list.appendChild(card);
-                });
-            }
-        });
     </script>
 </body>
 </html>
